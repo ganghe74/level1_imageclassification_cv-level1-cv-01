@@ -72,18 +72,23 @@ class Trainer(BaseTrainer):
 
             if batch_idx == self.len_epoch:
                 break
-        log = self.train_metrics.result() # Dict type
-        
+        '''
         train_acc = log['accuracy']
         train_loss = log['loss']
         wandb.log({'train_acc':train_acc, 'train_loss':train_loss})
-
+        '''
+        
+        log = self.train_metrics.result() # Dict type
+        
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
             log.update(**{'val_'+k : v for k, v in val_log.items()})
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
+            
+        log = self.train_metrics.result() # Dict type
+        wandb.log(log)
         return log
 
     def _valid_epoch(self, epoch):
@@ -114,10 +119,11 @@ class Trainer(BaseTrainer):
             self.writer.add_histogram(name, p, bins='auto')
             
         val_log = self.valid_metrics.result()
+        '''
         val_acc = val_log['accuracy']
         val_loss = val_log['loss']
         wandb.log({'val_acc':val_acc, 'val_loss':val_loss})
-        
+        '''
         return val_log
 
     def _progress(self, batch_idx):
