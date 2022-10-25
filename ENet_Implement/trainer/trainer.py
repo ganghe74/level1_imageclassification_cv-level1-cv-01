@@ -36,8 +36,8 @@ class Trainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.log_step = int(np.sqrt(data_loader.batch_size))
 
-        self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
-        self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
+        self.train_metrics = MetricTracker('Train_loss', *['Train_' + m.__name__ for m in self.metric_ftns], writer=self.writer)
+        self.valid_metrics = MetricTracker('Val_loss', *['Val_' + m.__name__ for m in self.metric_ftns], writer=self.writer)
         #wandb.watch(self.model, self.criterion, log='all', log_freq=1)
 
     def _train_epoch(self, epoch):
@@ -59,9 +59,9 @@ class Trainer(BaseTrainer):
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
-            self.train_metrics.update('loss', loss.item())
+            self.train_metrics.update('Train_loss', loss.item())
             for met in self.metric_ftns:
-                self.train_metrics.update(met.__name__, met(output, target))
+                self.train_metrics.update('Train_' + met.__name__, met(output, target))
 
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
@@ -79,16 +79,17 @@ class Trainer(BaseTrainer):
         '''
         
         log = self.train_metrics.result() # Dict type
+        #wandb.log(log)
         
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
-            log.update(**{'val_'+k : v for k, v in val_log.items()})
+            log.update(**{k : v for k, v in val_log.items()})
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
             
-        log = self.train_metrics.result() # Dict type
         wandb.log(log)
+        
         return log
 
     def _valid_epoch(self, epoch):
@@ -109,9 +110,9 @@ class Trainer(BaseTrainer):
                 
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
-                self.valid_metrics.update('loss', loss.item())
+                self.valid_metrics.update('Val_loss', loss.item())
                 for met in self.metric_ftns:
-                    self.valid_metrics.update(met.__name__, met(output, target))
+                    self.valid_metrics.update('Val_' + met.__name__, met(output, target))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         # add histogram of model parameters to the tensorboard
@@ -119,6 +120,7 @@ class Trainer(BaseTrainer):
             self.writer.add_histogram(name, p, bins='auto')
             
         val_log = self.valid_metrics.result()
+        #wandb.log(val_log)
         '''
         val_acc = val_log['accuracy']
         val_loss = val_log['loss']
