@@ -13,12 +13,14 @@ class Trainer(BaseTrainer):
     def __init__(self, model, criterion, metric_ftns, optimizer, config, device,
                  data_loader, valid_data_loader=None, lr_scheduler=None, len_epoch=None):
         super().__init__(model, criterion, metric_ftns, optimizer, config)
+        
         wandb.init(project="Mask-Classification", entity="yon-ninii") # wandb initialization
         wandb.config = { # wandb configuration
         "learning_rate": config['optimizer']['args']['lr'],
         "epochs": config['trainer']['epochs'],
         "batch_size": config['data_loader']['args']['batch_size']
         }
+        
         self.config = config
         self.device = device
         self.data_loader = data_loader
@@ -62,8 +64,6 @@ class Trainer(BaseTrainer):
                 self.train_metrics.update(met.__name__, met(output, target))
 
             if batch_idx % self.log_step == 0:
-                wandb.log({'Train_loss':loss.item()}) # log train loss to wandb
-                
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
                     epoch,
                     self._progress(batch_idx),
@@ -74,8 +74,9 @@ class Trainer(BaseTrainer):
                 break
         log = self.train_metrics.result() # Dict type
         
-        wandb.log({'Train_Accuracy':log['accuracy']})
-        wandb.log(log)
+        train_acc = log['accuracy']
+        train_loss = log['loss']
+        wandb.log({'train_acc':train_acc, 'train_loss':train_loss})
 
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
@@ -101,7 +102,6 @@ class Trainer(BaseTrainer):
                 output = self.model(data)
                 loss = self.criterion(output, target)
                 
-                wandb.log({'Val_loss':loss.item()}) # log train loss to wandb
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.valid_metrics.update('loss', loss.item())
@@ -112,7 +112,13 @@ class Trainer(BaseTrainer):
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():
             self.writer.add_histogram(name, p, bins='auto')
-        return self.valid_metrics.result()
+            
+        val_log = self.valid_metrics.result()
+        val_acc = val_log['accuracy']
+        val_loss = val_log['loss']
+        wandb.log({'val_acc':val_acc, 'val_loss':val_loss})
+
+        return val_log
 
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'

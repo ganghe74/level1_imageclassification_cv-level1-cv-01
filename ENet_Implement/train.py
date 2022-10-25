@@ -11,7 +11,7 @@ from trainer import Trainer
 from utils import prepare_device
 import wandb
 
-#wandb.init(project="Mask-Classification", entity="yon-ninii")
+wandb.init(project="Boostcamp-lv1-cv1", entity="qwer55252")
 
 
 # fix random seeds for reproducibility
