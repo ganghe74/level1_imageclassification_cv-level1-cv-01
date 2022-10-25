@@ -15,7 +15,7 @@ wandb.init(project="Boostcamp-lv1-cv1", entity="qwer55252")
 
 
 # fix random seeds for reproducibility
-SEED = 123
+SEED = 100
 torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
@@ -61,7 +61,7 @@ def main(config):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default='/opt/ml/code/Lv1/ENet_Implement/config.json', type=str,
+    args.add_argument('-c', '--config', default='/opt/ml/project-T4193/ENet_Implement/config.json', type=str,
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')
