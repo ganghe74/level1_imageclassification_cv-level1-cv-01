@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseModel
-from torchvision.models import resnet50
+from torchvision.models import resnet50, efficientnet_b7
 
 
 class MnistModel(BaseModel):
@@ -31,4 +31,18 @@ class ResNet50Mask(BaseModel):
 
     def forward(self, x):
         x = self.resnet(x)
+        return x
+
+
+class EfficientNet_B7_Mask(BaseModel):
+    def __init__(self):
+        super().__init__()
+        self.enet = efficientnet_b7()
+        self.enet.classifier = nn.Sequential(
+            nn.Dropout(p=0.5, inplace=True),
+            nn.Linear(2560, 18)
+        )
+    
+    def forward(self, x):
+        x = self.enet(x)
         return x
