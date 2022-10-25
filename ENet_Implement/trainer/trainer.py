@@ -3,6 +3,7 @@ import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker
+import wandb
 
 
 class Trainer(BaseTrainer):
@@ -12,6 +13,12 @@ class Trainer(BaseTrainer):
     def __init__(self, model, criterion, metric_ftns, optimizer, config, device,
                  data_loader, valid_data_loader=None, lr_scheduler=None, len_epoch=None):
         super().__init__(model, criterion, metric_ftns, optimizer, config)
+        wandb.init(project="Mask-Classification", entity="yon-ninii") # wandb initialization
+        wandb.config = { # wandb configuration
+        "learning_rate": config['optimizer']['args']['lr'],
+        "epochs": config['trainer']['epochs'],
+        "batch_size": config['data_loader']['args']['batch_size']
+        }
         self.config = config
         self.device = device
         self.data_loader = data_loader
@@ -29,6 +36,7 @@ class Trainer(BaseTrainer):
 
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
+        #wandb.watch(self.model, self.criterion, log='all', log_freq=1)
 
     def _train_epoch(self, epoch):
         """
@@ -54,6 +62,8 @@ class Trainer(BaseTrainer):
                 self.train_metrics.update(met.__name__, met(output, target))
 
             if batch_idx % self.log_step == 0:
+                wandb.log({'Train_loss':loss.item()}) # log train loss to wandb
+                
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
                     epoch,
                     self._progress(batch_idx),
@@ -62,7 +72,10 @@ class Trainer(BaseTrainer):
 
             if batch_idx == self.len_epoch:
                 break
-        log = self.train_metrics.result()
+        log = self.train_metrics.result() # Dict type
+        
+        wandb.log({'Train_Accuracy':log['accuracy']})
+        wandb.log(log)
 
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
@@ -87,6 +100,8 @@ class Trainer(BaseTrainer):
 
                 output = self.model(data)
                 loss = self.criterion(output, target)
+                
+                wandb.log({'Val_loss':loss.item()}) # log train loss to wandb
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.valid_metrics.update('loss', loss.item())

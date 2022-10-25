@@ -116,9 +116,10 @@ class MBConvBlock(nn.Module):
             x_squeezed = self._se_reduce(x_squeezed)
             x_squeezed = self._swish(x_squeezed)
             x_squeezed = self._se_expand(x_squeezed) # Recalibraion
-            x = torch.sigmoid(x_squeezed) * x # 
+            x = torch.sigmoid(x_squeezed) * x 
 
-        # Pointwise Convolution        x = self._project_conv(x)
+        # Pointwise Convolution        
+        x = self._project_conv(x)
         x = self._bn2(x)
 
         # Skip connection and drop connect

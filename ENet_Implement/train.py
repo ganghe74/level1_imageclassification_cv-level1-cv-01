@@ -5,10 +5,13 @@ import numpy as np
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
 import model.metric as module_metric
-import model.model as module_arch
+from model.model import EfficientNet
 from parse_config import ConfigParser
 from trainer import Trainer
 from utils import prepare_device
+import wandb
+
+#wandb.init(project="Mask-Classification", entity="yon-ninii")
 
 
 # fix random seeds for reproducibility
@@ -26,7 +29,8 @@ def main(config):
     valid_data_loader = data_loader.split_validation()
 
     # build model architecture, then print to console
-    model = config.init_obj('arch', module_arch)
+    #model = config.init_obj('arch', module_arch)
+    model = EfficientNet.from_name(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
     logger.info(model)
 
     # prepare for (multi-device) GPU training
@@ -49,14 +53,15 @@ def main(config):
                       device=device,
                       data_loader=data_loader,
                       valid_data_loader=valid_data_loader,
-                      lr_scheduler=lr_scheduler)
+                      lr_scheduler=lr_scheduler
+                      )
 
     trainer.train()
 
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default='/opt/ml/code/Lv1/Competition_1_T4087/config.json', type=str,
+    args.add_argument('-c', '--config', default='/opt/ml/code/Lv1/ENet_Implement/config.json', type=str,
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')
@@ -70,4 +75,11 @@ if __name__ == '__main__':
         CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
     ]
     config = ConfigParser.from_args(args, options)
+    '''
+    wandb.config = {
+    "learning_rate": config['optimizer']['args']['lr'],
+    "epochs": config['trainer']['epochs'],
+    "batch_size": config['data_loader']['args']['batch_size']
+    }
+    '''
     main(config)
