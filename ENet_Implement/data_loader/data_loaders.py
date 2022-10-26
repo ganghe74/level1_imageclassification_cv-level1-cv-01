@@ -64,6 +64,7 @@ class MaskTrainDataset(Dataset):
         self.transform = transform        
         # getitem 함수에서 [idx] 위치에 접근할 수 있도록 paths list를 만들어주자
 
+
         self.paths = []
         if self.is_train: # train
             self.df = pd.read_csv(os.path.join(root, 'train', 'train.csv'))
