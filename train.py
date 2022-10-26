@@ -30,7 +30,14 @@ def main(config):
 
     # build model architecture, then print to console
     #model = config.init_obj('arch', module_arch)
-    model = EfficientNet.from_pretrained(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
+    if config.resume is None:
+        model = EfficientNet.from_pretrained(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
+    else:
+        model = EfficientNet.from_name(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
+        logger.info('Loading checkpoint: {} ...'.format(config.resume))
+        checkpoint = torch.load(config.resume)
+        state_dict = checkpoint['state_dict']
+        model.load_state_dict(state_dict)
     logger.info(model)
 
     # prepare for (multi-device) GPU training
