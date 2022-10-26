@@ -1,5 +1,5 @@
 {
-    "name": "efficientnet-b0",
+    "name": "efficientnet-b7-pretrained",
     "n_gpu": 1,
 
     "arch": {
@@ -28,7 +28,7 @@
     },
     "loss": "CE_loss",
     "metrics": [
-        "accuracy", "top_k_acc"
+        "accuracy", "f1_score"
     ],
     "lr_scheduler": {
         "type": "StepLR",
@@ -38,7 +38,7 @@
         }
     },
     "trainer": {
-        "epochs": 15,
+        "epochs": 30,
 
         "save_dir": "saved/",
         "save_period": 1,

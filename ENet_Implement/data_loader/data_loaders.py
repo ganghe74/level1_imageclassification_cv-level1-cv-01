@@ -58,41 +58,46 @@ filenames = ['incorrect_mask', 'mask1', 'mask2', 'mask3', 'mask4', 'mask5', 'nor
 masklabels = [1, 0, 0, 0, 0, 0, 2]
 
 class MaskTrainDataset(Dataset):
-    def __init__(self, root, transform):
+    def __init__(self, root, transform, training=True):
         self.root = root
+        self.is_train = training
         self.transform = transform
-
-        self.df = pd.read_csv(os.path.join(root, 'train', 'train.csv'))
-
+        
         self.paths = []
-        self.labels = []
-        for path in self.df['path']:
-            _, gender, _, age = path.split('_')
-            age = int(age)
-            gender = 1 if gender == 'male' else 0
-            if age < 30:
-                age = 0
-            elif age < 60:
-                age = 1
-            else:
-                age = 2
+        if self.is_train:
+            self.df = pd.read_csv(os.path.join(root, 'train', 'train.csv'))
+            self.labels = []
+            for path in self.df['path']:
+                _, gender, _, age = path.split('_')
+                age = int(age)
+                gender = 0 if gender == 'male' else 1
+                if age < 30:
+                    age = 0
+                elif age < 60:
+                    age = 1
+                else:
+                    age = 2
 
-            for file, mask in zip(filenames, masklabels):
-                p = os.path.join(root, 'train', 'images', path, file+'*')
-                self.paths.extend(glob.glob(p))
-                self.labels.append(mask * 6 + gender * 3 + age)
-                # self.labels.append((mask, gender, age))
-                
+                for file, mask in zip(filenames, masklabels):
+                    p = os.path.join(root, 'train', 'images', path, file+'*')
+                    self.paths.extend(glob.glob(p))
+                    self.labels.append(mask * 6 + gender * 3 + age)
+        else:
+            self.df = pd.read_csv(os.path.join(root, 'eval', 'info.csv'))
+            self.paths = [os.path.join(root, 'eval', 'images', img_id) for img_id in self.df.ImageID]
+                    
 
     def __getitem__(self, index):
         image = Image.open(self.paths[index])
 
         if self.transform:
             image = self.transform(image)
-
-        label = self.labels[index]
-        return image, label
-
+        if self.is_train:
+            label = self.labels[index]
+            return image, label
+        else:
+            return image
+        
     def __len__(self):
         return len(self.paths)
 
@@ -108,7 +113,7 @@ class MaskDataLoader(BaseDataLoader):
         ])
         # self.data_dir = data_dir
         # self.dataset = datasets.MNIST(self.data_dir, train=training, download=True, transform=trsfm)
-        self.dataset = MaskTrainDataset(data_dir, trsfm)
+        self.dataset = MaskTrainDataset(data_dir, trsfm, training)
 
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 

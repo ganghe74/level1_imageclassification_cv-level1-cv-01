@@ -30,7 +30,7 @@ def main(config):
 
     # build model architecture, then print to console
     #model = config.init_obj('arch', module_arch)
-    model = EfficientNet.from_name(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
+    model = EfficientNet.from_pretrained(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
     logger.info(model)
 
     # prepare for (multi-device) GPU training
