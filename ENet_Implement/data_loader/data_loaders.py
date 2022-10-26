@@ -96,7 +96,7 @@ class MaskTrainDataset(Dataset):
         if self.transform:
             image = self.transform(image)
 
-        if self.train: # train -> image, label 반환
+        if self.is_train: # train -> image, label 반환
             label = self.labels[index]
             return image, label
         
