@@ -66,7 +66,7 @@ class MaskDataLoader(BaseDataLoader):
     def __init__(self, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True):
         trsfm = transforms.Compose([
             transforms.ToTensor(),
-            transforms.CenterCrop((192, 256))
+            # transforms.CenterCrop((192, 256))
         ])
         # self.data_dir = data_dir
         # self.dataset = datasets.MNIST(self.data_dir, train=training, download=True, transform=trsfm)

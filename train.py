@@ -15,7 +15,7 @@ wandb.init(project="Boostcamp-lv1-cv1", entity="qwer55252")
 
 
 # fix random seeds for reproducibility
-SEED = 100
+SEED = 123
 torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
