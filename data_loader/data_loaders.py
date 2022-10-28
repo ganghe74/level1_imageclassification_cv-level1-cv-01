@@ -22,7 +22,7 @@ class MaskDataLoader(BaseDataLoader):
     def _get_dataset(self, dataset, data_dir, trsfm, train):
         if dataset == 'glob':
             return MaskGlobDataset(data_dir, trsfm, train)
-        return MaskDataset(data_dir, trsfm, training)
+        return MaskDataset(data_dir, trsfm, train)
 
 
 '''
