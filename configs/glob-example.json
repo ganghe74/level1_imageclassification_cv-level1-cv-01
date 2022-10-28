@@ -1,6 +1,13 @@
 {
-    "name": "efficientnet-b7-pretrained",
+    "name": "glob-example",
     "n_gpu": 1,
+    "wandb": {
+        "use": true,
+        "init_args": {
+            "project": "your project name",
+            "name": "your run name"
+        }
+    },
 
     "arch": {
         "type": "efficientnet-b7",
@@ -11,11 +18,12 @@
     "data_loader": {
         "type": "MaskDataLoader",
         "args":{
-            "data_dir": "/opt/ml/input/data",
+            "data_dir": "/opt/ml/input/data/train/images",
             "batch_size": 32,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 4
+            "num_workers": 4,
+            "dataset": "glob"
         }
     },
     "optimizer": {
@@ -41,7 +49,7 @@
         "epochs": 30,
 
         "save_dir": "saved/",
-        "save_period": 3,
+        "save_period": 1,
         "verbosity": 2,
         
         "monitor": "min val_loss",
