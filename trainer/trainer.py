@@ -13,12 +13,14 @@ class Trainer(BaseTrainer):
     def __init__(self, model, criterion, metric_ftns, optimizer, config, device,
                  data_loader, valid_data_loader=None, lr_scheduler=None, len_epoch=None):
         super().__init__(model, criterion, metric_ftns, optimizer, config)
-        wandb.init(project="Boostcamp-lv1-cv1", entity="qwer55252") # wandb initialization
-        wandb.config = { # wandb configuration
-        "learning_rate": config['optimizer']['args']['lr'],
-        "epochs": config['trainer']['epochs'],
-        "batch_size": config['data_loader']['args']['batch_size']
-        }
+
+        if config['wandb']['use']:
+            wandb.init(**config['wandb']['init_args'])
+            wandb.config = { # wandb configuration
+                "learning_rate": config['optimizer']['args']['lr'],
+                "epochs": config['trainer']['epochs'],
+                "batch_size": config['data_loader']['args']['batch_size']
+            }
         
         self.config = config
         self.device = device
@@ -86,7 +88,8 @@ class Trainer(BaseTrainer):
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
             
-        wandb.log(log)
+        if self.config['wandb']['use']:
+            wandb.log(log)
         
         return log
 

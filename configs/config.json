@@ -1,6 +1,13 @@
 {
     "name": "efficientnet-b7-pretrained",
     "n_gpu": 1,
+    "wandb": {
+        "use": true,
+        "init_args": {
+            "project": "your project name",
+            "name": "your run name"
+        }
+    },
 
     "arch": {
         "type": "efficientnet-b7",

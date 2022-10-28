@@ -9,9 +9,6 @@ from model.model import EfficientNet
 from parse_config import ConfigParser
 from trainer import Trainer
 from utils import prepare_device
-import wandb
-
-wandb.init(project="Boostcamp-lv1-cv1", entity="qwer55252")
 
 
 # fix random seeds for reproducibility
@@ -82,11 +79,4 @@ if __name__ == '__main__':
         CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
     ]
     config = ConfigParser.from_args(args, options)
-    '''
-    wandb.config = {
-    "learning_rate": config['optimizer']['args']['lr'],
-    "epochs": config['trainer']['epochs'],
-    "batch_size": config['data_loader']['args']['batch_size']
-    }
-    '''
     main(config)
