@@ -1,0 +1,53 @@
+{
+    "name": "glob-example",
+    "n_gpu": 1,
+
+    "arch": {
+        "type": "efficientnet-b7",
+        "args": {
+            "num_classes":18
+        }
+    },
+    "data_loader": {
+        "type": "MaskDataLoader",
+        "args":{
+            "data_dir": "/opt/ml/input/data/train/images",
+            "batch_size": 32,
+            "shuffle": true,
+            "validation_split": 0.1,
+            "num_workers": 4,
+            "dataset": "glob"
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "CE_loss",
+    "metrics": [
+        "accuracy", "f1_score"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 50,
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 30,
+
+        "save_dir": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+        
+        "monitor": "min val_loss",
+        "early_stop": 10,
+
+        "tensorboard": false
+    }
+}
