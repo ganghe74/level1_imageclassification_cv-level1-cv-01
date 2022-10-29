@@ -48,7 +48,7 @@ def main(config):
 
     # get function handles of loss and metrics
     criterion = getattr(module_loss, config['loss'])
-    metrics = [getattr(module_metric, met) for met in config['metrics']]
+    metrics = [getattr(module_metric, met) for met in config['metrics']] # ['accuracy', 'f1_socre']
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
@@ -68,7 +68,7 @@ def main(config):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default='/opt/ml/project-T4193/ENet_Implement/config.json', type=str,
+    args.add_argument('-c', '--config', default='/opt/ml/project-T4193/config.json', type=str,
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')

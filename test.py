@@ -78,14 +78,15 @@ def main(config, input_dir, save_dir):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default='/opt/ml/code/Lv1/ENet_Implement/config.json', type=str,
+    args.add_argument('-c', '--config', default='/opt/ml/project-T4193/config.json', type=str,
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')
     args.add_argument('-d', '--device', default=None, type=str,
                       help='indices of GPUs to enable (default: all)')
 
+    # config로 설정할 수 있도록 바꿔주자
     input_dir = '/opt/ml/input/data/eval/'
-    save_dir = '/opt/ml/code/Lv1/ENet_Implement/outputs'
+    save_dir = '/opt/ml/project-T4193/outputs'
     config = ConfigParser.from_args(args)
     main(config, input_dir, save_dir)

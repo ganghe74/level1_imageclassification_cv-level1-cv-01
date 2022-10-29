@@ -5,6 +5,11 @@ import pandas as pd
 import os
 import glob
 from PIL import Image
+import albumentations
+from albumentations.pytorch.transforms import ToTensorV2
+import numpy as np
+import cv2
+from torch.autograd import Variable
 
 filenames = ['incorrect_mask', 'mask1', 'mask2', 'mask3', 'mask4', 'mask5', 'normal']
 masklabels = [1, 0, 0, 0, 0, 0, 2]
@@ -17,8 +22,8 @@ class MaskTrainDataset(Dataset):
         self.transform = transform
         
         ### augmentations 달라지면 수정해줘야함
-        self.aug_name = '_CC'
-        self.aug_filenames = ['incorrect_mask'+self.aug_name, 'mask1_CC'+self.aug_name, 'mask2_CC'+self.aug_name, 'mask3_CC'+self.aug_name, 'mask4_CC'+self.aug_name, 'mask5_CC'+self.aug_name, 'normal_CC'+self.aug_name]
+        self.aug_name = '_OD'
+        self.aug_filenames = ['incorrect_mask'+self.aug_name, 'mask1'+self.aug_name, 'mask2'+self.aug_name, 'mask3'+self.aug_name, 'mask4'+self.aug_name, 'mask5'+self.aug_name, 'normal'+self.aug_name]
         self.aug_masklabels = [1, 0, 0, 0, 0, 0, 2]
         ###
         
@@ -44,9 +49,15 @@ class MaskTrainDataset(Dataset):
                     self.labels.append(mask * 6 + gender * 3 + age)
                     
                     # for file, aug_mask in zip(aug_filenames, aug_masklabels): # file == "incorrect_mask_CC"
-                    aug_p = os.path.join(root, 'off_aug', 'images', path, file+self.aug_name+'*') # _CC 변수로 바꿔주자
-                    self.paths.extend(glob.glob(aug_p))
-                    self.labels.append(mask * 6 + gender * 3 + age)
+                    
+                    # if age == 2:
+                    #     aug_p = os.path.join(root, 'off_aug', 'images', path, file+'_R'+'*')
+                    #     self.paths.extend(glob.glob(aug_p))
+                    #     self.labels.append(mask * 6 + gender * 3 + age)
+                        
+                    #     aug_p = os.path.join(root, 'off_aug', 'images', path, file+'_HF'+'*') 
+                    #     self.paths.extend(glob.glob(aug_p))
+                    #     self.labels.append(mask * 6 + gender * 3 + age)
                     
         else:
             self.df = pd.read_csv(os.path.join(root, 'eval', 'info.csv'))
@@ -54,29 +65,41 @@ class MaskTrainDataset(Dataset):
                     
 
     def __getitem__(self, index):
-        image = Image.open(self.paths[index])
-
+        image = np.array(Image.open(self.paths[index]))
+        # image = cv2.imread(self.paths[index])
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        
         if self.transform:
-            image = self.transform(image)
+            image = self.transform(image=image)["image"]
         if self.is_train:
             label = self.labels[index]
-            return image, label
+            return Variable(image.float()), label
+            
         else:
-            return image
+            return Variable(image.float())
         
     def __len__(self):
         return len(self.paths)
 
-
+    
 class MaskDataLoader(BaseDataLoader):
     """
     Competition Mask Dataset
     """
     def __init__(self, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True):
-        trsfm = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize((192, 256))
+        # trsfm = transforms.Compose([
+        #     transforms.ToTensor(),
+        #     transforms.Resize((256, 192)),
+        #     albumentations.RandomRain(slant_lower=-20,slant_upper=20,drop_length=20,drop_width=1,drop_color=(200,200,200),blur_value=1,brightness_coefficient=0.9,rain_type=None,always_apply=True,p=0.5)
+        # ])
+        
+        trsfm = albumentations.Compose([
+            albumentations.Resize(256, 192), 
+            albumentations.RandomRain(slant_lower=-20,slant_upper=20,drop_length=20,drop_width=1,drop_color=(200,200,200),blur_value=1,brightness_coefficient=0.9,rain_type=None,always_apply=True,p=0.5),
+            ToTensorV2()
         ])
+        
+        
         # self.data_dir = data_dir
         # self.dataset = datasets.MNIST(self.data_dir, train=training, download=True, transform=trsfm)
         self.dataset = MaskTrainDataset(data_dir, trsfm, training)
