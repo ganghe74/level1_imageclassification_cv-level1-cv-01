@@ -50,14 +50,14 @@ class MaskTrainDataset(Dataset):
                     
                     # for file, aug_mask in zip(aug_filenames, aug_masklabels): # file == "incorrect_mask_CC"
                     
-                    # if age == 2:
-                    #     aug_p = os.path.join(root, 'off_aug', 'images', path, file+'_R'+'*')
-                    #     self.paths.extend(glob.glob(aug_p))
-                    #     self.labels.append(mask * 6 + gender * 3 + age)
+                    if age == 2:
+                        aug_p = os.path.join(root, 'off_aug', 'images', path, file+'_R'+'*')
+                        self.paths.extend(glob.glob(aug_p))
+                        self.labels.append(mask * 6 + gender * 3 + age)
                         
-                    #     aug_p = os.path.join(root, 'off_aug', 'images', path, file+'_HF'+'*') 
-                    #     self.paths.extend(glob.glob(aug_p))
-                    #     self.labels.append(mask * 6 + gender * 3 + age)
+                        aug_p = os.path.join(root, 'off_aug', 'images', path, file+'_HF'+'*') 
+                        self.paths.extend(glob.glob(aug_p))
+                        self.labels.append(mask * 6 + gender * 3 + age)
                     
         else:
             self.df = pd.read_csv(os.path.join(root, 'eval', 'info.csv'))
@@ -94,8 +94,8 @@ class MaskDataLoader(BaseDataLoader):
         # ])
         
         trsfm = albumentations.Compose([
-            albumentations.Resize(256, 192), 
-            albumentations.RandomRain(slant_lower=-20,slant_upper=20,drop_length=20,drop_width=1,drop_color=(200,200,200),blur_value=1,brightness_coefficient=0.9,rain_type=None,always_apply=True,p=0.5),
+            albumentations.Resize(170, 128), 
+            # albumentations.RandomRain(slant_lower=-20,slant_upper=20,drop_length=20,drop_width=1,drop_color=(200,200,200),blur_value=1,brightness_coefficient=0.9,rain_type=None,always_apply=True,p=0.5),
             ToTensorV2()
         ])
         
