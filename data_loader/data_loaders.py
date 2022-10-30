@@ -57,6 +57,7 @@ class MaskSplitLoader(DataLoader):
 
         self.trainset = MaskGlobDataset(data_dir, train_trsfm, paths=self.paths[train_idx])
         self.validset = MaskGlobDataset(data_dir, train_trsfm, paths=self.paths[valid_idx])
+        self.n_samples = len(self.trainset)
 
         self.init_kwargs = {
             'batch_size': batch_size,
@@ -69,4 +70,6 @@ class MaskSplitLoader(DataLoader):
         raise Exception('do not use _split_sampler')
     
     def split_validation(self):
-        return DataLoader(self.validset, **self.init_kwargs)
+        dl = DataLoader(self.validset, **self.init_kwargs)
+        dl.n_samples = len(self.validset)
+        return dl
