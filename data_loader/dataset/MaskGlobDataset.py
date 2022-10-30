@@ -1,27 +1,36 @@
 import os
 import re
 import glob
+from pathlib import Path
 from torch.utils.data import Dataset
 from PIL import Image
 
 class MaskGlobDataset(Dataset):
-    def __init__(self, root, transform, train=True):
+    def __init__(self, root, transform, train=True, paths=None):
         """
         csv 없이 파일 경로에서 라벨을 추출하는 데이터셋
         OfflineAug를 위해 제작함
         Args:
             root: 이미지가 들어있는 최상위 디렉터리
-                  ex) '/opt/ml/input/data/train/images'
+                  ex) '/opt/ml/input/data/train'
             transform:
             train:
         """
-        self.root = root
+        self.root = root = Path(root)
         self.train = train
         self.transform = transform
 
-        files = glob.glob(os.path.join(root, '**/*'), recursive=True)
-        self.paths = [f for f in files if self._is_image(f)]
+        self.paths = []
         self.labels = []
+
+        if paths is None:
+            files = root.glob('**/*')
+            self.paths = [f for f in files if self._is_image(f)]
+        else:
+            for path in paths:
+                files = (root / 'images' / path).glob('*.*')
+                files = [f for f in files if self._is_image(f)]
+                self.paths.extend(files)
 
         if train:
             for p in self.paths:
@@ -30,13 +39,15 @@ class MaskGlobDataset(Dataset):
 
     def _is_image(self, path):
         exts = ['jpg', 'jpeg', 'png']
-        return any(path.endswith(ext) for ext in exts)
+        p = str(path)
+        return '._' not in p and any(p.endswith(ext) for ext in exts)
 
 
     def _parse(self, p):
         """
         path를 파싱해 라벨 리턴
         """
+        p = str(p)
         match = re.search('_(.+)_Asian_(\d+)/(.*)[\.-]', p)
         if match and len(match.groups()) == 3:
             gender, age, mask = match.groups()
