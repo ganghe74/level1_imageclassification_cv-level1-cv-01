@@ -417,3 +417,5 @@ class EfficientNet(nn.Module):
             Conv2d = get_same_padding_conv2d(image_size=self._global_params.image_size)
             out_channels = round_filters(32, self._global_params)
             self._conv_stem = Conv2d(in_channels, out_channels, kernel_size=3, stride=2, bias=False)
+
+efficientnet = EfficientNet.from_pretrained
