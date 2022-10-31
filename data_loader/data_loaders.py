@@ -51,12 +51,16 @@ class MaskSplitLoader(DataLoader):
         self.paths = self.df['path'].to_numpy()
         self.labels = (self.df['gender'].map({'male': 0, 'female': 1}) * 3 + self.df['age'] // 3).to_numpy()
 
-        s = StratifiedShuffleSplit(n_splits=1, test_size=validation_split)
-        s.get_n_splits()
-        train_idx, valid_idx = next(s.split(self.paths, self.labels))
+        if validation_split == 0:
+            train_idx = range(len(self.paths))
+            valid_idx = []
+        else:
+            s = StratifiedShuffleSplit(n_splits=1, test_size=validation_split, random_state=0)
+            s.get_n_splits()
+            train_idx, valid_idx = next(s.split(self.paths, self.labels))
 
         self.trainset = MaskGlobDataset(data_dir, train_trsfm, paths=self.paths[train_idx])
-        self.validset = MaskGlobDataset(data_dir, train_trsfm, paths=self.paths[valid_idx])
+        self.validset = MaskGlobDataset(data_dir, valid_trsfm, paths=self.paths[valid_idx])
         self.n_samples = len(self.trainset)
 
         self.init_kwargs = {
