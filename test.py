@@ -6,6 +6,7 @@ import pandas as pd
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
 import model.metric as module_metric
+import model.model as module_arch
 from model.model import EfficientNet
 from parse_config import ConfigParser
 
@@ -24,7 +25,7 @@ def main(config, input_dir, save_dir):
     )
 
     # build model architecture
-    model = EfficientNet.from_name(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
+    model = config.init_obj('arch', module_arch)
     logger.info(model)
 
     info_path = os.path.join(input_dir, 'info.csv')

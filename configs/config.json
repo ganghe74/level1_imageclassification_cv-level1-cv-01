@@ -10,8 +10,9 @@
     },
 
     "arch": {
-        "type": "efficientnet-b7",
+        "type": "efficientnet",
         "args": {
+            "model_name": "efficientnet-b7",
             "num_classes":18
         }
     },
