@@ -5,7 +5,7 @@ import numpy as np
 import data_loader.data_loaders as module_data
 import model.loss as module_loss
 import model.metric as module_metric
-from model.model import EfficientNet
+import model.model as module_arch
 from parse_config import ConfigParser
 from trainer import Trainer
 from utils import prepare_device
@@ -26,15 +26,7 @@ def main(config):
     valid_data_loader = data_loader.split_validation()
 
     # build model architecture, then print to console
-    #model = config.init_obj('arch', module_arch)
-    if config.resume is None:
-        model = EfficientNet.from_pretrained(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
-    else:
-        model = EfficientNet.from_name(config['arch']['type'], num_classes=config['arch']['args']['num_classes'])
-        logger.info('Loading checkpoint: {} ...'.format(config.resume))
-        checkpoint = torch.load(config.resume)
-        state_dict = checkpoint['state_dict']
-        model.load_state_dict(state_dict)
+    model = config.init_obj('arch', module_arch)
     logger.info(model)
 
     # prepare for (multi-device) GPU training
