@@ -1,26 +1,26 @@
 {
-    "name": "split-example",
+    "name": "ENet-b2",
     "n_gpu": 1,
     "wandb": {
-        "use": false,
+        "use": true,
         "init_args": {
             "project": "KH",
-            "name": "split-test"
+            "name": "ENet-b2"
         }
     },
 
     "arch": {
         "type": "efficientnet",
         "args": {
-            "model_name": "efficientnet-b0",
+            "model_name": "efficientnet-b2",
             "num_classes": 18
         }
     },
     "data_loader": {
         "type": "MaskSplitLoader",
         "args":{
-            "data_dir": "/opt/ml/input/data/train/",
-            "batch_size": 8,
+            "data_dir": "/opt/ml/input/60Rotate30",
+            "batch_size": 128,
             "shuffle": true,
             "validation_split": 0.1,
             "num_workers": 4
@@ -34,11 +34,7 @@
             "amsgrad": true
         }
     },
-    "loss": {
-        "type": "CE_loss",
-        "args": {
-        }
-    },
+    "loss": "CE_loss",
     "metrics": [
         "accuracy", "f1_score"
     ],

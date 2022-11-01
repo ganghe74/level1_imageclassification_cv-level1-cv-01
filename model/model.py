@@ -419,3 +419,25 @@ class EfficientNet(nn.Module):
             self._conv_stem = Conv2d(in_channels, out_channels, kernel_size=3, stride=2, bias=False)
 
 efficientnet = EfficientNet.from_pretrained
+
+def efficientnet_freeze(**kwargs):
+    model = efficientnet(**kwargs)
+    modules = [model._conv_stem, model._bn0, model._blocks, model._conv_head]
+    for m in modules:
+        for p in m.parameters():
+            p.requires_grad = False
+    return model
+
+def efficientnet_freeze_fc2(**kwargs):
+    model = efficientnet(**kwargs)
+    for p in model.parameters():
+        p.requires_grad = False
+    model._dropout = nn.Identity()
+    model._fc = nn.Sequential(
+        nn.Dropout(0.2),
+        nn.Linear(1280, 640),
+        model._swish,
+        nn.Dropout(0.2),
+        nn.Linear(640, 18)
+    )
+    return model

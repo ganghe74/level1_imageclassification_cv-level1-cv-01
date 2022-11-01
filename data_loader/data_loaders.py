@@ -1,11 +1,14 @@
 from torch.utils.data import DataLoader
-from torchvision import transforms
+from torchvision import transforms as T
 from base import BaseDataLoader
 from .dataset import MaskDataset, MaskGlobDataset
 from glob import glob
 from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import StratifiedShuffleSplit
+import numpy as np
+import albumentations as A
+from random import choice
 
 
 class MaskDataLoader(BaseDataLoader):
@@ -14,9 +17,10 @@ class MaskDataLoader(BaseDataLoader):
     """
     def __init__(self, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True, dataset='default'):
         # default transform
-        trsfm = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.CenterCrop((320, 256))
+        trsfm = T.Compose([
+            T.ToTensor(),
+            # transforms.Normalize((0.5489362, 0.50472213, 0.48014935), (0.23510724, 0.24488226, 0.24451137)),
+            T.Resize((256, 192))
         ])
 
         self.data_dir = data_dir
@@ -29,6 +33,34 @@ class MaskDataLoader(BaseDataLoader):
             return MaskGlobDataset(data_dir, trsfm, train)
         return MaskDataset(data_dir, trsfm, train)
 
+# [Origin, RandomCrop(300), CenterCrop(300),  CLAHE,  GridDistortion (찌그러트림), Perspective, GridDistortion+Crop] + CoarseDropout(CutOut)
+
+TOPCROP = A.Crop(p=1, x_min=0, y_min=50, x_max=384, y_max=512)
+ONEOF = A.OneOf([
+    A.Compose([]),
+    A.RandomCrop(300, 300, p=1),
+    A.CenterCrop(300, 300, p=1),
+    A.CLAHE(p=1),
+    A.GridDistortion(p=1),
+    A.Perspective(p=1),
+    A.Compose([
+        A.GridDistortion(p=1),
+        A.RandomCrop(300, 300, p=1)
+    ])
+], p=1.)
+CUTOUT = A.CoarseDropout()
+TT = T.Compose([
+    T.ToTensor(),
+    T.Resize((224, 224))
+])
+
+def tf(im):
+    im = np.array(im)
+    im = TOPCROP(image=im)['image']
+    im = ONEOF(image=im)['image']
+    im = CUTOUT(image=im)['image']
+    im = TT(im)
+    return im
 
 
 class MaskSplitLoader(DataLoader):
@@ -36,14 +68,10 @@ class MaskSplitLoader(DataLoader):
     Competition Mask DataLoader. Split by profile
     """
     def __init__(self, data_dir, batch_size, shuffle=True, validation_split=0.0, num_workers=1, training=True, dataset='default'):
-        # default transform
-        train_trsfm = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize((256, 192))
-        ])
-        valid_trsfm = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize((256, 192))
+        train_trsfm = tf
+        valid_trsfm = T.Compose([
+            T.ToTensor(),
+            T.Resize((224, 224))
         ])
 
         self.data_dir = data_dir = Path(data_dir)

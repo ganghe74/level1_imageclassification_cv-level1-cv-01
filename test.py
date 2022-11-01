@@ -87,6 +87,6 @@ if __name__ == '__main__':
                       help='indices of GPUs to enable (default: all)')
 
     input_dir = '/opt/ml/input/data/eval/'
-    save_dir = '/opt/ml/code/Lv1/ENet_Implement/outputs'
+    save_dir = '.'
     config = ConfigParser.from_args(args)
     main(config, input_dir, save_dir)

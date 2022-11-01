@@ -1,11 +1,11 @@
 {
-    "name": "split-example",
+    "name": "ENet-b0-Cutout-150",
     "n_gpu": 1,
     "wandb": {
-        "use": false,
+        "use": true,
         "init_args": {
             "project": "KH",
-            "name": "split-test"
+            "name": "ENet-b0-Cutout-150"
         }
     },
 
@@ -19,10 +19,10 @@
     "data_loader": {
         "type": "MaskSplitLoader",
         "args":{
-            "data_dir": "/opt/ml/input/data/train/",
-            "batch_size": 8,
+            "data_dir": "/opt/ml/input/60HFRotate45",
+            "batch_size": 320,
             "shuffle": true,
-            "validation_split": 0.1,
+            "validation_split": 0.2,
             "num_workers": 4
         }
     },
@@ -34,26 +34,22 @@
             "amsgrad": true
         }
     },
-    "loss": {
-        "type": "CE_loss",
-        "args": {
-        }
-    },
+    "loss": "CE_loss",
     "metrics": [
         "accuracy", "f1_score"
     ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
-            "step_size": 50,
+            "step_size": 30,
             "gamma": 0.1
         }
     },
     "trainer": {
-        "epochs": 30,
+        "epochs": 100,
 
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 3,
         "verbosity": 2,
         
         "monitor": "min val_loss",

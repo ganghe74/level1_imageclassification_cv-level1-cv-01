@@ -1,26 +1,26 @@
 {
-    "name": "split-example",
+    "name": "ENet-b1-weight-decay-0.1",
     "n_gpu": 1,
     "wandb": {
-        "use": false,
+        "use": true,
         "init_args": {
             "project": "KH",
-            "name": "split-test"
+            "name": "ENet-b1-weight-decay-0.1"
         }
     },
 
     "arch": {
         "type": "efficientnet",
         "args": {
-            "model_name": "efficientnet-b0",
+            "model_name": "efficientnet-b1",
             "num_classes": 18
         }
     },
     "data_loader": {
         "type": "MaskSplitLoader",
         "args":{
-            "data_dir": "/opt/ml/input/data/train/",
-            "batch_size": 8,
+            "data_dir": "/opt/ml/input/60HFRotate45",
+            "batch_size": 240,
             "shuffle": true,
             "validation_split": 0.1,
             "num_workers": 4
@@ -30,30 +30,26 @@
         "type": "Adam",
         "args":{
             "lr": 0.001,
-            "weight_decay": 0,
+            "weight_decay": 0.1,
             "amsgrad": true
         }
     },
-    "loss": {
-        "type": "CE_loss",
-        "args": {
-        }
-    },
+    "loss": "CE_loss",
     "metrics": [
         "accuracy", "f1_score"
     ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
-            "step_size": 50,
+            "step_size": 90,
             "gamma": 0.1
         }
     },
     "trainer": {
-        "epochs": 30,
+        "epochs": 100,
 
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 3,
         "verbosity": 2,
         
         "monitor": "min val_loss",

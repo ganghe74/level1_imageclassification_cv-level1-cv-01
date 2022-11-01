@@ -1,16 +1,16 @@
 {
-    "name": "split-example",
+    "name": "ENet-b0-FineTuning-FC2",
     "n_gpu": 1,
     "wandb": {
-        "use": false,
+        "use": true,
         "init_args": {
             "project": "KH",
-            "name": "split-test"
+            "name": "ENet-b0-FineTuning-FC2"
         }
     },
 
     "arch": {
-        "type": "efficientnet",
+        "type": "efficientnet_freeze_fc2",
         "args": {
             "model_name": "efficientnet-b0",
             "num_classes": 18
@@ -20,17 +20,17 @@
         "type": "MaskSplitLoader",
         "args":{
             "data_dir": "/opt/ml/input/data/train/",
-            "batch_size": 8,
+            "batch_size": 1024,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 4
+            "num_workers": 3
         }
     },
     "optimizer": {
         "type": "Adam",
         "args":{
             "lr": 0.001,
-            "weight_decay": 0,
+            "weight_decay": 0.0001,
             "amsgrad": true
         }
     },
@@ -45,12 +45,12 @@
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
-            "step_size": 50,
+            "step_size": 1000,
             "gamma": 0.1
         }
     },
     "trainer": {
-        "epochs": 30,
+        "epochs": 100,
 
         "save_dir": "saved/",
         "save_period": 1,

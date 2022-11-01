@@ -1,11 +1,11 @@
 {
-    "name": "split-example",
+    "name": "ENet-b0-many-aug",
     "n_gpu": 1,
     "wandb": {
         "use": false,
         "init_args": {
             "project": "KH",
-            "name": "split-test"
+            "name": "ENet-b0-many-aug"
         }
     },
 
@@ -19,8 +19,8 @@
     "data_loader": {
         "type": "MaskSplitLoader",
         "args":{
-            "data_dir": "/opt/ml/input/data/train/",
-            "batch_size": 8,
+            "data_dir": "/opt/ml/input/60x5",
+            "batch_size": 320,
             "shuffle": true,
             "validation_split": 0.1,
             "num_workers": 4
