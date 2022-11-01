@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 
 class MaskGlobDataset(Dataset):
-    def __init__(self, root, transform, train=True, paths=None):
+    def __init__(self, root, transform, train=True, valid=False, paths=None):
         """
         csv 없이 파일 경로에서 라벨을 추출하는 데이터셋
         OfflineAug를 위해 제작함
@@ -14,27 +14,38 @@ class MaskGlobDataset(Dataset):
             root: 이미지가 들어있는 최상위 디렉터리
                   ex) '/opt/ml/input/data/train'
             transform:
-            train:
+            train: 미지원
+            valid: valid 면 Offline Augmentatino 제외
+            paths: 데이터셋 포함시키기 원하는 인물 directory path. 기본적 동작은 모두 glob
         """
+        assert train == True
+
         self.root = root = Path(root)
-        self.train = train
         self.transform = transform
+        self.train = train
+        self.valid = valid
 
         self.paths = []
         self.labels = []
 
         if paths is None:
             files = root.glob('**/*')
-            self.paths = [f for f in files if self._is_image(f)]
+            self.paths = [f for f in files if self._check_path(f)]
         else:
             for path in paths:
                 files = (root / 'images' / path).glob('*.*')
-                files = [f for f in files if self._is_image(f)]
+                files = [f for f in files if self._check_path(f)]
                 self.paths.extend(files)
 
         if train:
             for p in self.paths:
                 self.labels.append(self._parse(p))
+
+
+    def _check_path(self, path):
+        # if self.valid and '-' in path.name:
+        #     return False
+        return self._is_image(path)
 
 
     def _is_image(self, path):
@@ -68,7 +79,7 @@ class MaskGlobDataset(Dataset):
                 mask = 0
             return mask * 6 + gender * 3 + age
         else:
-            raise Exception(f'Cannot parsing label from the path: {p}')
+            raise Exception(f'Cannot parse label from the path: {p}')
 
 
     def __getitem__(self, index):

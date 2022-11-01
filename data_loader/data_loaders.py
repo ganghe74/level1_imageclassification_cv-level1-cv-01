@@ -59,8 +59,8 @@ class MaskSplitLoader(DataLoader):
             s.get_n_splits()
             train_idx, valid_idx = next(s.split(self.paths, self.labels))
 
-        self.trainset = MaskGlobDataset(data_dir, train_trsfm, paths=self.paths[train_idx])
-        self.validset = MaskGlobDataset(data_dir, valid_trsfm, paths=self.paths[valid_idx])
+        self.trainset = MaskGlobDataset(data_dir, train_trsfm, valid=False, paths=self.paths[train_idx])
+        self.validset = MaskGlobDataset(data_dir, valid_trsfm, valid=True, paths=self.paths[valid_idx])
         self.n_samples = len(self.trainset)
 
         self.init_kwargs = {
