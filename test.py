@@ -51,7 +51,7 @@ def main(config, input_dir, save_dir):
     preds = []
 
     with torch.no_grad():
-        for i, (data) in enumerate(tqdm(data_loader)):
+        for i, data in enumerate(tqdm(data_loader)):
             data = data.to(device) #, target.to(device)
             output = model(data)
             pred = torch.argmax(output.detach().cpu(), dim=1).numpy()
@@ -78,7 +78,7 @@ def main(config, input_dir, save_dir):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default='/opt/ml/project-T4193/config.json', type=str,
+    args.add_argument('-c', '--config', default='/opt/ml/project-T4193/test.json', type=str,
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')

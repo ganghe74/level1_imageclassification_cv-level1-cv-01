@@ -21,5 +21,5 @@ def top_k_acc(output, target, device, k=3):
 
 def f1_score(output, target, device):
     with torch.no_grad():
-        f1 = F1Score(num_classes=18).to(device)
+        f1 = F1Score(num_classes=18, average='macro').to(device)
     return f1(output, target)
